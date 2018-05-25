@@ -14,12 +14,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import static com.example.karthik.experiment.R.raw.beep02;
+
 public class MainActivity extends AppCompatActivity {
     Handler handler = new Handler();
-    private long millisec=15000;
+    private long millisec = 15000;
     TextView t;
-    
-    long stopmilli,millisecs; ;
+    int flag = 0;
+    long stopmilli, millisecs;
+
 
 
     boolean stop;
@@ -29,28 +32,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         t = (TextView) findViewById(R.id.countdown);
-
+        final MediaPlayer m = MediaPlayer.create(this, beep02);
         t.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                flag++;
+                final Runnable r = new Runnable() {
+                    @Override
+                    public void run() {
+
+                        millisec = millisec - 1000;
+                        if (flag == 2)
+                        countdown();
+
+                        if (millisec >= 0&&flag!=2) {
+                            updatetext();
+
+                            if (millisec == 3000&&flag!=2)
+                                m.start();
 
 
+                            handler.postDelayed(this, 1000);
 
-                    Runnable r = new Runnable() {
-                        @Override
-                        public void run() {
-                            millisec = millisec-1000;
-
-                            if (millisec >= 0) {
-                                updatetext();
-
-                                handler.postDelayed(this,1000);
-
-                            } else if (millisec< 0)
-                                countdown();
-                        }
-                    };
-                    handler.postDelayed(r, 0);
+                        } else if (millisec < 0)
+                            countdown();
+                    }
+                };
+                handler.postDelayed(r, 0);
 
             }
 
@@ -65,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        stopmilli= SystemClock.uptimeMillis();
+        stopmilli = SystemClock.uptimeMillis();
         final Handler h = new Handler();
         Runnable r = new Runnable() {
             @Override
@@ -83,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updatetext() {
 
-        t.setText(String.valueOf((int) millisec/1000));
+        t.setText(String.valueOf((int) millisec / 1000));
     }
 
     private void updatestoptext() {
@@ -91,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         int minutes = (seconds) / 60;
         int secs = seconds % 60;
         int milli = (int) millisecs % 1000;
-        String s = String.format("%02d:%02d:%03d", minutes, secs,milli);
+        String s = String.format("%02d:%02d:%03d", minutes, secs, milli);
         t.setText(s);
 
     }
